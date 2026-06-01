@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "YouTubeLog Tracker",
+  "version": "1.0",
+  "description": "YouTubeの視聴履歴をYouTubeLogダッシュボードに自動送信します。",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "http://localhost:3000/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/watch*"],
+      "js": ["content.js"]
+    }
+  ]
+}

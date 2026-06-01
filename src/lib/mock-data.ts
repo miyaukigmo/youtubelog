@@ -102,3 +102,21 @@ export const mockVideos: Video[] = [
     viewedAt: "2026-05-29T21:00:00Z",
   }
 ];
+
+export const generateMockVideos = (count: number): Video[] => {
+  const videos: Video[] = [];
+  const baseVideos = mockVideos;
+  for (let i = 0; i < count; i++) {
+    const base = baseVideos[i % baseVideos.length];
+    videos.push({
+      ...base,
+      id: `generated_v${i}`,
+      title: `${base.title} (動画 ${i + 1})`,
+      viewedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(), // 過去30日間のランダムな日付
+      isStarred: Math.random() > 0.8,
+      progress: Math.random() > 0.7 ? 100 : (Math.random() > 0.5 ? Math.floor(Math.random() * 99) + 1 : 0),
+    });
+  }
+  // 日付が新しい順にソート
+  return videos.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime());
+};
