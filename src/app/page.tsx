@@ -2,7 +2,6 @@ import { getVideosAction, getVideoCountAction, getCategoriesAction } from "@/act
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Star, Upload } from "lucide-react";
-import { UploadButton } from "@/components/UploadButton";
 import VideoList from "@/components/VideoList";
 
 export default async function Home() {
