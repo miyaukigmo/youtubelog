@@ -90,12 +90,12 @@ export default function ImportPage() {
                     <p className="font-bold">インポート成功！</p>
                   </div>
                   <p className="text-sm mb-4">{result.count} 件の動画履歴をデータベースに登録しました。</p>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="/">
+                  <Link href="/" className="w-full block">
+                    <Button variant="outline" className="w-full">
                       <Home className="w-4 h-4 mr-2" />
                       ダッシュボードに戻る
-                    </Link>
-                  </Button>
+                    </Button>
+                  </Link>
                 </div>
               ) : (
                 <div>
