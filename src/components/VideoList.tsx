@@ -242,12 +242,12 @@ export default function VideoList({ initialVideos, categories }: { initialVideos
           </div>
         )}
 
-        <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-4 p-3 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50 shrink-0 pr-4">
-          <div className="w-10 text-center">状態</div>
+        <div className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto_auto] gap-2 sm:gap-4 p-3 bg-muted/50 text-xs font-medium text-muted-foreground border-b border-border/50 shrink-0 pr-4">
+          <div className="w-8 sm:w-10 text-center">状態</div>
           <div>タイトル</div>
-          <div className="w-24">ジャンル</div>
-          <div className="w-24 text-right">視聴日</div>
-          <div className="w-10"></div>
+          <div className="hidden sm:block w-24">ジャンル</div>
+          <div className="hidden sm:block w-24 text-right">視聴日</div>
+          <div className="w-8 sm:w-10"></div>
         </div>
         
         <div ref={parentRef} className="flex-1 overflow-auto divide-y divide-border/50">
@@ -284,41 +284,47 @@ export default function VideoList({ initialVideos, categories }: { initialVideos
                 return (
                   <div
                     key={video.id}
-                    className="group grid grid-cols-[auto_1fr_auto_auto_auto] gap-4 p-3 items-center hover:bg-muted/30 transition-colors absolute top-0 left-0 w-full"
+                    className="group grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto_auto] gap-2 sm:gap-4 p-3 items-center hover:bg-muted/30 transition-colors absolute top-0 left-0 w-full"
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <div className="w-10 flex justify-center text-muted-foreground">
+                    <div className="w-8 sm:w-10 flex justify-center text-muted-foreground shrink-0">
                       {video.progress === 100 ? (
                         <PlayCircle className="w-4 h-4 text-green-500" />
                       ) : (
                         <Clock className="w-4 h-4 text-orange-400" />
                       )}
                     </div>
-                    <div className="min-w-0">
-                      {/* YouTube直リンクに変更 */}
+                    <div className="min-w-0 pr-2">
+                      {/* YouTube直リンク */}
                       <a 
                         href={`https://www.youtube.com/watch?v=${video.youtube_video_id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-medium text-sm truncate hover:text-blue-500 hover:underline block transition-colors" 
+                        className="font-bold sm:font-medium text-sm line-clamp-2 sm:truncate hover:text-blue-500 hover:underline block transition-colors leading-tight" 
                         title={video.title}
                       >
                         {video.title}
                       </a>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5" title={video.channel_name}>{video.channel_name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-[11px] sm:text-xs text-muted-foreground truncate" title={video.channel_name}>{video.channel_name}</p>
+                        {/* スマホ時のみ表示するメタデータ */}
+                        <span className="sm:hidden text-[10px] text-muted-foreground whitespace-nowrap bg-muted px-1.5 py-0.5 rounded">
+                          {new Date(video.viewed_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
                     </div>
-                    <div className="w-24 flex items-center">
+                    <div className="hidden sm:flex w-24 items-center">
                       <Badge variant="secondary" className={`font-medium text-[10px] truncate border-transparent ${getCategoryColor(video.category_name)}`}>
                         {video.category_name}
                       </Badge>
                     </div>
-                    <div className="w-24 text-right text-xs text-muted-foreground">
+                    <div className="hidden sm:block w-24 text-right text-xs text-muted-foreground">
                       {new Date(video.viewed_at).toLocaleDateString()}
                     </div>
-                    <div className="w-10 flex justify-center z-10">
+                    <div className="w-8 sm:w-10 flex justify-center z-10 shrink-0">
                       <button 
                         onClick={(e) => {
                           e.preventDefault();

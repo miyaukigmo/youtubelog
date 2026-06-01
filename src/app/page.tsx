@@ -75,6 +75,9 @@ export default async function Home() {
               </Card>
             ))}
           </div>
+        </section>
+      )}
+
       {/* ミクロ分析（仮想スクロールリスト） */}
       <section>
         <h2 className="mb-4 text-xl font-bold">すべての履歴 ({totalCount.toLocaleString()}件)</h2>
