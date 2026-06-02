@@ -1,4 +1,5 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("[Background] 📨 メッセージを受信しました:", request);
   if (request.type === "RECORD_VIDEO") {
     // バックグラウンドで代わりにVercelへfetchを実行する（CORSを回避）
     fetch('https://youtubelog.vercel.app/api/record', {
