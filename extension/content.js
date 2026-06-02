@@ -8,34 +8,43 @@ function recordVideo() {
   const videoId = url.searchParams.get('v');
   if (!videoId) return;
 
-  // DOMの読み込みを少し待つ（タイトルやチャンネル名がレンダリングされるため）
-  setTimeout(() => {
+  let attempts = 0;
+  const maxAttempts = 20; // 0.5秒 x 20回 = 最大10秒まで待つ
+
+  // 0.5秒おきにタイトルが表示されたかチェックする
+  const tryRecord = setInterval(() => {
+    attempts++;
     const titleElement = document.querySelector('h1.ytd-watch-metadata yt-formatted-string');
     const channelElement = document.querySelector('#owner-name a');
     
-    // タイトルが取得できなければタブのタイトルを代用
-    const title = titleElement ? titleElement.textContent : document.title.replace(' - YouTube', '');
-    const channelName = channelElement ? channelElement.textContent : "Unknown Channel";
+    // タイトルが表示されたか、または10秒経過して諦めた場合に処理を進める
+    if (titleElement || attempts >= maxAttempts) {
+      clearInterval(tryRecord); // 監視タイマーをストップ
 
-    console.log(`[YouTubeLog] 視聴を記録中... ID: ${videoId}, Title: ${title}`);
+      // タイトルが取得できなければタブのタイトルを代用
+      const title = titleElement ? titleElement.textContent : document.title.replace(' - YouTube', '');
+      const channelName = channelElement ? channelElement.textContent : "Unknown Channel";
 
-    // バックグラウンド（background.js）におつかいを頼む
-    chrome.runtime.sendMessage({
-      type: "RECORD_VIDEO",
-      data: {
-        youtube_video_id: videoId,
-        title: title,
-        channel_name: channelName,
-        duration: "--:--"
-      }
-    }, (response) => {
-      if (response && response.success) {
-        console.log('[YouTubeLog] 記録成功:', response.data);
-      } else {
-        console.error('[YouTubeLog] 記録エラー:', response ? response.error : chrome.runtime.lastError);
-      }
-    });
-  }, 3000); // 3秒待つ
+      console.log(`[YouTubeLog] 視聴を記録中... ID: ${videoId}, Title: ${title}`);
+
+      // バックグラウンド（background.js）におつかいを頼む
+      chrome.runtime.sendMessage({
+        type: "RECORD_VIDEO",
+        data: {
+          youtube_video_id: videoId,
+          title: title,
+          channel_name: channelName,
+          duration: "--:--"
+        }
+      }, (response) => {
+        if (response && response.success) {
+          console.log('[YouTubeLog] 記録成功:', response.data);
+        } else {
+          console.error('[YouTubeLog] 記録エラー:', response ? response.error : chrome.runtime.lastError);
+        }
+      });
+    }
+  }, 500); // 0.5秒ごとにチェック
 }
 
 // 初回ロード時
