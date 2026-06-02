@@ -19,23 +19,22 @@ function recordVideo() {
 
     console.log(`[YouTubeLog] 視聴を記録中... ID: ${videoId}, Title: ${title}`);
 
-    // ローカルサーバー（本番時はVercelのURLに変更する）にデータを送信
-    // 注意: ダッシュボードアプリの npm run dev が動いている必要があります
-    fetch('http://localhost:3000/api/record', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    // バックグラウンド（background.js）におつかいを頼む
+    chrome.runtime.sendMessage({
+      type: "RECORD_VIDEO",
+      data: {
         youtube_video_id: videoId,
         title: title,
         channel_name: channelName,
         duration: "--:--"
-      })
-    })
-    .then(res => res.json())
-    .then(data => console.log('[YouTubeLog] 記録成功:', data))
-    .catch(err => console.error('[YouTubeLog] 記録エラー:', err));
+      }
+    }, (response) => {
+      if (response && response.success) {
+        console.log('[YouTubeLog] 記録成功:', response.data);
+      } else {
+        console.error('[YouTubeLog] 記録エラー:', response ? response.error : chrome.runtime.lastError);
+      }
+    });
   }, 3000); // 3秒待つ
 }
 

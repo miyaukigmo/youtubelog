@@ -3,6 +3,9 @@
   "name": "YouTubeLog Tracker",
   "version": "1.0",
   "description": "YouTubeの視聴履歴をYouTubeLogダッシュボードに自動送信します。",
+  "background": {
+    "service_worker": "background.js"
+  },
   "permissions": [
     "activeTab",
     "scripting"
