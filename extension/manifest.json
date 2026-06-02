@@ -9,7 +9,7 @@
   ],
   "host_permissions": [
     "https://www.youtube.com/*",
-    "http://localhost:3000/*"
+    "https://youtubelog-824haaeqf-miyashitas-projects-5b191d93.vercel.app/*"
   ],
   "content_scripts": [
     {
