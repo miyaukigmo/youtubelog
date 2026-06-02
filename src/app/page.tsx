@@ -4,6 +4,9 @@ import { Progress } from "@/components/ui/progress";
 import { Star, Upload } from "lucide-react";
 import VideoList from "@/components/VideoList";
 
+// Vercelのキャッシュを無効にして常に最新のデータベースを表示する
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // 初期表示用の最新50件を取得
   const initialVideos = await getVideosAction(0, 50, "すべて") || [];
