@@ -52,7 +52,7 @@ export default function VideoList({ initialVideos, categories }: { initialVideos
   const rowVirtualizer = useVirtualizer({
     count: hasMore ? items.length + 1 : items.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 56,
+    estimateSize: () => 72, // 初期見積もり高さを少し増やす
     overscan: 5,
   });
 
@@ -269,9 +269,10 @@ export default function VideoList({ initialVideos, categories }: { initialVideos
                   return (
                     <div
                       key="loader"
+                      ref={rowVirtualizer.measureElement}
+                      data-index={virtualRow.index}
                       className="flex justify-center items-center p-4 absolute top-0 left-0 w-full"
                       style={{
-                        height: `${virtualRow.size}px`,
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
                     >
@@ -284,9 +285,10 @@ export default function VideoList({ initialVideos, categories }: { initialVideos
                 return (
                   <div
                     key={video.id}
+                    ref={rowVirtualizer.measureElement}
+                    data-index={virtualRow.index}
                     className="group grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto_auto] gap-2 sm:gap-4 p-3 items-center hover:bg-muted/30 transition-colors absolute top-0 left-0 w-full"
                     style={{
-                      height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
