@@ -63,19 +63,21 @@ export default async function Home() {
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
             {remindVideos.map(video => (
-              <Card key={video.id} className="min-w-[280px] shrink-0 snap-start overflow-hidden border-border/50 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="relative h-40 w-full bg-muted">
+              <Card key={video.id} className="w-[240px] h-[220px] shrink-0 snap-start overflow-hidden border-border/50 hover:shadow-md transition-shadow cursor-pointer flex flex-col" title={video.title}>
+                <div className="relative h-32 w-full bg-muted shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={video.thumbnail_url} alt={video.title} className="object-cover w-full h-full" />
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                  <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 py-0.5 rounded">
                     {video.duration}
                   </div>
                 </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold line-clamp-2 text-sm mb-1">{video.title}</h3>
-                  <p className="text-xs text-muted-foreground">{video.channel_name}</p>
+                <CardContent className="p-3 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-semibold line-clamp-1 text-sm">{video.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{video.channel_name}</p>
+                  </div>
                   {video.progress > 0 && (
-                    <Progress value={video.progress} className="h-1 mt-3" />
+                    <Progress value={video.progress} className="h-1 mt-2" />
                   )}
                 </CardContent>
               </Card>

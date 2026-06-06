@@ -2,16 +2,13 @@
 import { useMemo } from "react";
 
 export default function Heatmap({ data }: { data: Record<string, number> }) {
-  // 過去約90日分（13週分）の日付配列を生成
+  // 過去30日分の日付配列を生成
   const days = useMemo(() => {
     const result = [];
     const today = new Date();
-    // タイムゾーンのズレを防ぐため、単純に現在のローカル日付を基準にする
     
-    // 最初のセルが日曜日になるように、過去90日〜96日の間で調整する
-    const daysToSubtract = 90 + today.getDay(); 
-
-    for (let i = daysToSubtract; i >= 0; i--) {
+    // 直近30日間
+    for (let i = 29; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(d.getDate() - i);
       
@@ -23,30 +20,48 @@ export default function Heatmap({ data }: { data: Record<string, number> }) {
       
       result.push({
         date: dateStr,
+        displayDate: `${d.getMonth() + 1}/${d.getDate()}`, // 6/6
         count: data[dateStr] || 0
       });
     }
     return result;
   }, [data]);
 
+  // 最大値を求めて高さをパーセンテージで計算できるようにする
+  const maxCount = Math.max(...days.map(d => d.count), 1); // 0割防止のため最低1
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-6 w-full">
       <h3 className="font-bold text-sm sm:text-base flex items-center gap-2">
-        🔥 視聴ヒートマップ (過去3ヶ月)
+        📊 視聴グラフ (過去30日間)
       </h3>
-      <div className="overflow-x-auto pb-2 scrollbar-hide">
-        {/* 数字を表示するグリッド */}
-        <div className="grid grid-rows-7 grid-flow-col gap-1.5 w-max">
-          {days.map((day) => (
-            <div 
-              key={day.date} 
-              className="w-6 h-6 sm:w-7 sm:h-7 rounded flex items-center justify-center text-[10px] sm:text-xs font-medium bg-muted/30 border border-border/50 hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
-              title={`${day.date}: ${day.count}本`}
-            >
-              {day.count > 0 ? day.count : ""}
+      
+      <div className="w-full h-[220px] flex items-end justify-between gap-1 sm:gap-2 pb-8 relative pt-6">
+        {days.map((day) => {
+          const heightPercent = (day.count / maxCount) * 100;
+          return (
+            <div key={day.date} className="flex flex-col items-center flex-1 group h-full justify-end relative">
+              
+              {/* 棒の上に数字（ホバー時または常に） */}
+              <div className={`text-[10px] sm:text-xs font-bold mb-1 transition-opacity ${day.count > 0 ? 'text-foreground' : 'text-transparent'}`}>
+                {day.count > 0 ? day.count : ""}
+              </div>
+              
+              {/* 棒本体 */}
+              <div 
+                className={`w-full max-w-[32px] rounded-t-sm transition-all relative ${day.count > 0 ? 'bg-emerald-500/60 hover:bg-emerald-500 dark:bg-emerald-600/60 dark:hover:bg-emerald-500' : 'bg-transparent'}`}
+                style={{ height: `${Math.max(heightPercent, 2)}%` }} // 0件でも最低2%の高さを持たせてレイアウトを崩さないようにする（色は透明なので見えない）
+                title={`${day.date}: ${day.count}本`}
+              >
+              </div>
+              
+              {/* X軸のラベル（日付） */}
+              <div className="text-[9px] sm:text-[10px] text-muted-foreground mt-2 rotate-45 origin-top-left absolute -bottom-6 left-1/2 whitespace-nowrap">
+                {day.displayDate}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
