@@ -55,6 +55,15 @@ export async function POST(request: Request) {
     const contentDetails = ytData.items[0].contentDetails;
     const categoryName = CATEGORY_MAP[snippet.categoryId] || "その他";
 
+    // 既存レコードがあるか確認し、お気に入り状態（is_starred）を維持する
+    const { data: existing } = await supabase
+      .from("videos")
+      .select("is_starred")
+      .eq("youtube_video_id", videoId)
+      .single();
+
+    const isStarred = existing ? existing.is_starred : false;
+
     const { error } = await supabase
       .from("videos")
       .upsert([{
@@ -65,7 +74,8 @@ export async function POST(request: Request) {
         thumbnail_url: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
         duration: parseDuration(contentDetails.duration),
         progress: 100, // 新規追加分は視聴済み(100)とする
-        is_starred: false,
+        is_starred: isStarred, // 既存のスター状態を維持する
+
         viewed_at: new Date().toISOString(),
       }], { onConflict: "youtube_video_id" });
 

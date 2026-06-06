@@ -59,7 +59,7 @@ export default async function Home() {
         <section>
           <h2 className="mb-4 text-xl font-bold flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-            後で見る・続きから
+            お気に入り
           </h2>
           <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
             {remindVideos.map(video => (
