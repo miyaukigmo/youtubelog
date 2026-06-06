@@ -123,12 +123,14 @@ export async function addVideoAction(videoData: {
 export async function getDailyCountsAction() {
   const today = new Date();
   const pastDate = new Date();
-  pastDate.setDate(today.getDate() - 100); // 余裕を見て過去100日分取得
+  pastDate.setDate(today.getDate() - 35); // グラフ用に過去35日分取得
 
   const { data, error } = await supabase
     .from("videos")
     .select("viewed_at")
-    .gte("viewed_at", pastDate.toISOString());
+    .gte("viewed_at", pastDate.toISOString())
+    .order("viewed_at", { ascending: false }) // 新しいデータから取得する！
+    .limit(3000); // デフォルトの1000件制限を回避
 
   if (error) {
     console.error("日別データの取得に失敗しました:", error);
