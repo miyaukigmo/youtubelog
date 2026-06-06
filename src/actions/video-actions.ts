@@ -118,3 +118,35 @@ export async function addVideoAction(videoData: {
 
   revalidatePath("/");
 }
+
+// 4. 日付ごとの視聴件数を取得するアクション（ヒートマップ用）
+export async function getDailyCountsAction() {
+  const today = new Date();
+  const pastDate = new Date();
+  pastDate.setDate(today.getDate() - 100); // 余裕を見て過去100日分取得
+
+  const { data, error } = await supabase
+    .from("videos")
+    .select("viewed_at")
+    .gte("viewed_at", pastDate.toISOString());
+
+  if (error) {
+    console.error("日別データの取得に失敗しました:", error);
+    return {};
+  }
+
+  const counts: Record<string, number> = {};
+  for (const row of data) {
+    if (!row.viewed_at) continue;
+    const dateObj = new Date(row.viewed_at);
+    // YYYY-MM-DD形式に変換 (ローカルタイム基準)
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
+    counts[dateStr] = (counts[dateStr] || 0) + 1;
+  }
+
+  return counts;
+}

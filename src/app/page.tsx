@@ -1,8 +1,9 @@
-import { getVideosAction, getVideoCountAction, getCategoriesAction } from "@/actions/video-actions";
+import { getVideosAction, getVideoCountAction, getCategoriesAction, getDailyCountsAction } from "@/actions/video-actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Star, Upload } from "lucide-react";
 import VideoList from "@/components/VideoList";
+import Heatmap from "@/components/Heatmap";
 
 // Vercelのキャッシュを無効にして常に最新のデータベースを表示する
 export const dynamic = 'force-dynamic';
@@ -16,6 +17,9 @@ export default async function Home() {
 
   // 存在するカテゴリのリストを取得
   const categories = await getCategoriesAction();
+
+  // 日別視聴件数を取得（ヒートマップ用）
+  const dailyCounts = await getDailyCountsAction();
 
   if (totalCount === 0) {
     return (
@@ -79,6 +83,13 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* ヒートマップ（草生やす） */}
+      <section>
+        <Card className="p-6 border-border/50 bg-card/50">
+          <Heatmap data={dailyCounts} />
+        </Card>
+      </section>
 
       {/* ミクロ分析（仮想スクロールリスト） */}
       <section>
