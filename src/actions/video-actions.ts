@@ -132,21 +132,10 @@ export async function getDailyCountsAction() {
 
   if (error) {
     console.error("日別データの取得に失敗しました:", error);
-    return {};
+    return [];
   }
 
-  const counts: Record<string, number> = {};
-  for (const row of data) {
-    if (!row.viewed_at) continue;
-    const dateObj = new Date(row.viewed_at);
-    // YYYY-MM-DD形式に変換 (ローカルタイム基準)
-    const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const dateStr = `${year}-${month}-${day}`;
-    
-    counts[dateStr] = (counts[dateStr] || 0) + 1;
-  }
-
-  return counts;
+  // タイムゾーンによる日付ズレを防ぐため、集計はクライアント側で行う
+  // ここでは viewed_at の配列だけを返す
+  return data.map(row => row.viewed_at).filter(Boolean);
 }

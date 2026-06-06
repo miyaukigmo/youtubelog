@@ -1,9 +1,22 @@
 "use client";
 import { useMemo } from "react";
 
-export default function Heatmap({ data }: { data: Record<string, number> }) {
+export default function Heatmap({ data }: { data: string[] }) {
   // 過去30日分の日付配列を生成
   const days = useMemo(() => {
+    // 1. data (viewed_atの配列) をローカルのYYYY-MM-DD形式に変換して集計
+    const counts: Record<string, number> = {};
+    for (const isoString of data) {
+      if (!isoString) continue;
+      const d = new Date(isoString);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      counts[dateStr] = (counts[dateStr] || 0) + 1;
+    }
+
+    // 2. 過去30日分の配列を作成
     const result = [];
     const today = new Date();
     
@@ -21,7 +34,7 @@ export default function Heatmap({ data }: { data: Record<string, number> }) {
       result.push({
         date: dateStr,
         displayDate: `${d.getMonth() + 1}/${d.getDate()}`, // 6/6
-        count: data[dateStr] || 0
+        count: counts[dateStr] || 0
       });
     }
     return result;
