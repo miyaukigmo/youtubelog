@@ -1,9 +1,10 @@
-import { getVideosAction, getVideoCountAction, getCategoriesAction, getDailyCountsAction } from "@/actions/video-actions";
+import { getVideosAction, getVideoCountAction, getCategoriesAction, getDailyCountsAction, getWatchTimeAnalyticsAction } from "@/actions/video-actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Star, Upload } from "lucide-react";
 import VideoList from "@/components/VideoList";
 import Heatmap from "@/components/Heatmap";
+import AnalyticsChart from "@/components/AnalyticsChart";
 
 // Vercelのキャッシュを無効にして常に最新のデータベースを表示する
 export const dynamic = 'force-dynamic';
@@ -20,6 +21,9 @@ export default async function Home() {
 
   // 日別視聴件数を取得（ヒートマップ用）
   const dailyCounts = await getDailyCountsAction();
+
+  // 時間分析用のデータを取得
+  const analyticsData = await getWatchTimeAnalyticsAction();
 
   if (totalCount === 0) {
     return (
@@ -39,17 +43,6 @@ export default async function Home() {
 
   // リマインド用動画（初期取得の50件から抽出）
   const remindVideos = initialVideos.filter(v => v.is_starred).slice(0, 10);
-
-  // カテゴリごとの割合計算（最近の50件の傾向）
-  const totalRecentVideos = initialVideos.length;
-  // 最近50件に含まれるユニークなカテゴリ名を取得
-  const uniqueCategories = Array.from(new Set(initialVideos.map(v => v.category_name)));
-  
-  const categoryStats = uniqueCategories.map(cat => {
-    const count = initialVideos.filter(v => v.category_name === cat).length;
-    return { name: cat, percentage: Math.round((count / totalRecentVideos) * 100) };
-  }).filter(stat => stat.percentage > 0)
-    .sort((a, b) => b.percentage - a.percentage); // 割合が多い順にソート
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-12">
@@ -99,19 +92,11 @@ export default async function Home() {
         <VideoList initialVideos={initialVideos} categories={["すべて", ...categories]} />
       </section>
 
-      {/* マクロ分析 */}
+      {/* 時間の使い方分析 */}
       <section className="mt-8 pt-8 border-t border-border/50">
-        <h2 className="mb-4 text-xl font-bold">視聴傾向（最近）</h2>
-        <Card className="p-6 border-border/50">
-          <div className="space-y-4">
-            {categoryStats.map(stat => (
-              <div key={stat.name} className="flex items-center gap-4">
-                <div className="w-24 text-sm font-medium">{stat.name}</div>
-                <Progress value={stat.percentage} className="flex-1 h-2" />
-                <div className="w-12 text-sm text-right text-muted-foreground">{stat.percentage}%</div>
-              </div>
-            ))}
-          </div>
+        <h2 className="mb-4 text-xl font-bold">時間の使い方分析（過去30日間）</h2>
+        <Card className="p-6 border-border/50 bg-card/50">
+          <AnalyticsChart data={analyticsData} />
         </Card>
       </section>
 

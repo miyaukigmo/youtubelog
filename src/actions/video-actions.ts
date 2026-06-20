@@ -141,3 +141,51 @@ export async function getDailyCountsAction() {
   // ここでは viewed_at の配列だけを返す
   return data.map(row => row.viewed_at).filter(Boolean);
 }
+
+// 5. アナリティクス用のデータ（カテゴリごとの視聴時間）を取得するアクション
+export async function getWatchTimeAnalyticsAction() {
+  const today = new Date();
+  const pastDate = new Date();
+  pastDate.setDate(today.getDate() - 30); // 過去30日分
+
+  const { data, error } = await supabase
+    .from("videos")
+    .select("category_name, duration")
+    .gte("viewed_at", pastDate.toISOString());
+
+  if (error) {
+    console.error("アナリティクスデータの取得に失敗しました:", error);
+    return [];
+  }
+
+  const categoryTimeMap: Record<string, number> = {};
+
+  for (const row of data) {
+    if (!row.duration || row.duration === "--:--") continue;
+    
+    // "HH:MM:SS" または "MM:SS" を秒に変換
+    const parts = row.duration.split(":").map(Number);
+    let seconds = 0;
+    if (parts.length === 3) {
+      seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+    } else if (parts.length === 2) {
+      seconds = parts[0] * 60 + parts[1];
+    }
+
+    if (seconds > 0 && !isNaN(seconds)) {
+      const cat = row.category_name || "未分類";
+      categoryTimeMap[cat] = (categoryTimeMap[cat] || 0) + seconds;
+    }
+  }
+
+  // 「分」単位に変換して配列にする
+  const result = Object.entries(categoryTimeMap).map(([name, totalSeconds]) => {
+    return {
+      name,
+      value: Math.round(totalSeconds / 60),
+    };
+  }).filter(item => item.value > 0)
+    .sort((a, b) => b.value - a.value);
+
+  return result;
+}
